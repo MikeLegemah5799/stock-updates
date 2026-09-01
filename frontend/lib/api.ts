@@ -92,6 +92,7 @@ export async function streamQuery(
 
   while (true) {
     const { value, done } = await reader.read();
+    console.log("[streamQuery] read()", { done, bytes: value?.length });
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
 
@@ -102,6 +103,7 @@ export async function streamQuery(
       const eventLine = frame.split("\n").find((l) => l.startsWith("event:"));
       const dataLine = frame.split("\n").find((l) => l.startsWith("data:"));
       if (!dataLine) continue;
+      console.log("[streamQuery] frame", frame.slice(0, 80));
       const data = JSON.parse(dataLine.slice("data:".length).trim());
       const eventType = eventLine?.slice("event:".length).trim();
       if (eventType === "update") {
