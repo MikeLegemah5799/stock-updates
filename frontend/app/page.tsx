@@ -2,7 +2,7 @@
 
 import { LineChart, Star } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AgentNode, ChatThread, Turn } from "@/components/chat-thread";
+import { ChatThread, type Turn } from "@/components/chat-thread";
 import { CopilotInput } from "@/components/copilot-input";
 import { QuoteCard } from "@/components/quote-card";
 import { FilingSummaryCard } from "@/components/filing-summary-card";
@@ -13,6 +13,7 @@ import {
   approve,
   getWatchlist,
   updateWatchlist,
+  type AgentNode,
   type QueryDoneEvent,
   type InterruptPayload,
   type TickerQuote,

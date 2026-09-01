@@ -68,7 +68,10 @@ export type AgentNode = (typeof AGENT_NODES)[number];
 // the human-approval interrupt.
 export async function streamQuery(
   params: { threadId: string | null; advisorId: string; message: string },
-  handlers: { onUpdate?: (node: AgentNode) => void; onDone: (event: QueryDoneEvent) => void }
+  handlers: {
+    onUpdate?: (node: AgentNode, payload: unknown) => void;
+    onDone: (event: QueryDoneEvent) => void;
+  }
 ): Promise<void> {
   const res = await fetch(`${BACKEND_URL}/api/query`, {
     method: "POST",
@@ -105,7 +108,7 @@ export async function streamQuery(
         const node = (Object.keys(data) as string[]).find((k) =>
           (AGENT_NODES as readonly string[]).includes(k)
         );
-        if (node) handlers.onUpdate?.(node as AgentNode);
+        if (node) handlers.onUpdate?.(node as AgentNode, data[node]);
       } else if (eventType === "done") {
         handlers.onDone(data as QueryDoneEvent);
       }
