@@ -52,12 +52,23 @@ export type AdvisorProfile = {
   recent_queries: string[];
 };
 
-// Reads the backend's text/event-stream response, calling onDone with the
-// terminal "done" event's payload once the graph run finishes or pauses at
+// The graph nodes as the backend names them in each streamed "update" event,
+// in the order the supervisor can invoke them.
+export const AGENT_NODES = [
+  "supervisor",
+  "market_data_agent",
+  "filings_rag_agent",
+  "compliance_agent",
+] as const;
+export type AgentNode = (typeof AGENT_NODES)[number];
+
+// Reads the backend's text/event-stream response. onUpdate fires once per
+// graph node as it completes (drives the live agent-status stepper); onDone
+// fires once with the terminal payload once the run finishes or pauses at
 // the human-approval interrupt.
 export async function streamQuery(
   params: { threadId: string | null; advisorId: string; message: string },
-  onDone: (event: QueryDoneEvent) => void
+  handlers: { onUpdate?: (node: AgentNode) => void; onDone: (event: QueryDoneEvent) => void }
 ): Promise<void> {
   const res = await fetch(`${BACKEND_URL}/api/query`, {
     method: "POST",
@@ -90,8 +101,13 @@ export async function streamQuery(
       if (!dataLine) continue;
       const data = JSON.parse(dataLine.slice("data:".length).trim());
       const eventType = eventLine?.slice("event:".length).trim();
-      if (eventType === "done") {
-        onDone(data as QueryDoneEvent);
+      if (eventType === "update") {
+        const node = (Object.keys(data) as string[]).find((k) =>
+          (AGENT_NODES as readonly string[]).includes(k)
+        );
+        if (node) handlers.onUpdate?.(node as AgentNode);
+      } else if (eventType === "done") {
+        handlers.onDone(data as QueryDoneEvent);
       }
     }
   }
