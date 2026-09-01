@@ -35,13 +35,18 @@ export type InterruptPayload = {
   };
 };
 
+export type BlockCategory = "off_topic" | "prompt_injection" | "insider_trading";
+
 export type QueryDoneEvent = {
   thread_id: string;
-  status: "awaiting_approval" | "complete";
+  status: "blocked" | "awaiting_approval" | "complete";
   values: {
     ticker?: string;
     quote_data?: TickerQuote;
     filing_summary?: FilingSummary;
+    blocked?: boolean;
+    block_category?: BlockCategory;
+    block_reason?: string;
   };
   interrupt: InterruptPayload | null;
 };
@@ -53,8 +58,10 @@ export type AdvisorProfile = {
 };
 
 // The graph nodes as the backend names them in each streamed "update" event,
-// in the order the supervisor can invoke them.
+// in the order they can run. input_guardrail always runs first and, if it
+// blocks the request, is the only node that runs.
 export const AGENT_NODES = [
+  "input_guardrail",
   "supervisor",
   "market_data_agent",
   "filings_rag_agent",

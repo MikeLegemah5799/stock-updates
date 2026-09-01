@@ -2,13 +2,20 @@ import { Check, Loader2 } from "lucide-react";
 import type { AgentNode } from "@/lib/api";
 
 const STEP_LABELS: Record<AgentNode, string> = {
+  input_guardrail: "Input check",
   supervisor: "Supervisor",
   market_data_agent: "Market data",
   filings_rag_agent: "Filings RAG",
   compliance_agent: "Compliance",
 };
 
-const STEPS: AgentNode[] = ["supervisor", "market_data_agent", "filings_rag_agent", "compliance_agent"];
+const STEPS: AgentNode[] = [
+  "input_guardrail",
+  "supervisor",
+  "market_data_agent",
+  "filings_rag_agent",
+  "compliance_agent",
+];
 
 type StepState = "pending" | "active" | "done" | "skipped";
 
@@ -19,12 +26,16 @@ function stepState(
 ): StepState {
   if (completed.has(node)) return "done";
 
-  if (node === "supervisor") return "active";
+  if (node === "input_guardrail") return "active";
+  if (!completed.has("input_guardrail")) return "pending";
 
+  if (node === "supervisor") return "active";
   if (!completed.has("supervisor")) return "pending";
 
   if (node === "compliance_agent") {
-    const gating = [...planned].filter((n) => n !== "supervisor" && n !== "compliance_agent");
+    const gating = [...planned].filter(
+      (n) => n !== "input_guardrail" && n !== "supervisor" && n !== "compliance_agent"
+    );
     return gating.every((n) => completed.has(n)) ? "active" : "pending";
   }
 

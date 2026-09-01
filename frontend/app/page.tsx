@@ -22,6 +22,7 @@ import {
 
 const ADVISOR_ID = "demo-advisor";
 const DEFAULT_PLAN: AgentNode[] = [
+  "input_guardrail",
   "supervisor",
   "market_data_agent",
   "filings_rag_agent",
@@ -49,6 +50,12 @@ export default function Home() {
 
   function applyDoneEvent(turnId: string, event: QueryDoneEvent) {
     setThreadId(event.thread_id);
+
+    if (event.status === "blocked") {
+      patchTurn(turnId, { status: "blocked", blockReason: event.values.block_reason });
+      return;
+    }
+
     setQuote(event.values.quote_data ?? null);
     setFilingSummary(
       event.values.filing_summary ?? event.interrupt?.final_output.filing_summary ?? null

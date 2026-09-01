@@ -75,12 +75,18 @@ def query(req: QueryRequest):
         state = app_graph.get_state(config)
         interrupts = [t for task in state.tasks for t in task.interrupts]
         awaiting_approval = bool(interrupts)
+        if state.values.get("blocked"):
+            status = "blocked"
+        elif awaiting_approval:
+            status = "awaiting_approval"
+        else:
+            status = "complete"
         yield {
             "event": "done",
             "data": json.dumps(
                 {
                     "thread_id": thread_id,
-                    "status": "awaiting_approval" if awaiting_approval else "complete",
+                    "status": status,
                     "values": state.values,
                     "interrupt": interrupts[0].value if interrupts else None,
                 },

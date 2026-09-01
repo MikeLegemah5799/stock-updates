@@ -1,14 +1,15 @@
-import { AlertTriangle, CheckCircle2, ShieldCheck, User } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ShieldBan, ShieldCheck, User } from "lucide-react";
 import { AgentStatusStepper } from "@/components/agent-status-stepper";
 import type { AgentNode } from "@/lib/api";
 
 export type Turn = {
   id: string;
   question: string;
-  status: "running" | "awaiting_approval" | "complete" | "error";
+  status: "running" | "awaiting_approval" | "complete" | "error" | "blocked";
   completedAgents: AgentNode[];
   plannedAgents: AgentNode[];
   errorMessage?: string;
+  blockReason?: string;
 };
 
 function StatusLine({ turn }: { turn: Turn }) {
@@ -17,6 +18,14 @@ function StatusLine({ turn }: { turn: Turn }) {
       <span className="inline-flex items-center gap-1.5 text-xs text-danger">
         <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2} />
         {turn.errorMessage ?? "Something went wrong."}
+      </span>
+    );
+  }
+  if (turn.status === "blocked") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-danger">
+        <ShieldBan className="h-3.5 w-3.5" strokeWidth={2} />
+        {turn.blockReason ?? "This request was blocked by a guardrail."}
       </span>
     );
   }

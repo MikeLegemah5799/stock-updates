@@ -18,3 +18,6 @@ class AgentState(TypedDict):
     approval_decision: Literal["approved", "rejected", "edited"] | None
     final_output: dict | None
     next_agent: str
+    blocked: bool
+    block_category: Literal["off_topic", "prompt_injection", "insider_trading"] | None
+    block_reason: str | None
