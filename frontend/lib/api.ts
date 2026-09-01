@@ -92,18 +92,19 @@ export async function streamQuery(
 
   while (true) {
     const { value, done } = await reader.read();
-    console.log("[streamQuery] read()", { done, bytes: value?.length });
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
 
-    const frames = buffer.split("\n\n");
+    // sse-starlette terminates each field with \r\n, so a frame boundary is
+    // \r\n\r\n, not \n\n.
+    const frames = buffer.split(/\r?\n\r?\n/);
     buffer = frames.pop() ?? "";
 
     for (const frame of frames) {
-      const eventLine = frame.split("\n").find((l) => l.startsWith("event:"));
-      const dataLine = frame.split("\n").find((l) => l.startsWith("data:"));
+      const lines = frame.split(/\r?\n/);
+      const eventLine = lines.find((l) => l.startsWith("event:"));
+      const dataLine = lines.find((l) => l.startsWith("data:"));
       if (!dataLine) continue;
-      console.log("[streamQuery] frame", frame.slice(0, 80));
       const data = JSON.parse(dataLine.slice("data:".length).trim());
       const eventType = eventLine?.slice("event:".length).trim();
       if (eventType === "update") {

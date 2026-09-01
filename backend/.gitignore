@@ -5,3 +5,4 @@ __pycache__/
 app/memory/advisor_store.json
 .pytest_cache/
 .env
+.env
