@@ -56,9 +56,20 @@ def get_latest_10k(ticker: str) -> dict:
     raise ValueError(f"No 10-K found for {ticker}")
 
 
+_MIN_SECTION_CHARS = 1_000
+_MAX_SECTION_CHARS = 40_000
+
+
 def fetch_filing_sections(source_url: str) -> dict[str, str]:
     """Download a 10-K document and extract the Risk Factors and MD&A sections
-    via heuristic text splitting (best-effort — 10-K HTML structure varies)."""
+    via heuristic text splitting (best-effort — 10-K HTML structure varies).
+
+    A 10-K's table of contents lists "Item 1A. Risk Factors" near the top as a
+    one-line entry, which a naive first-match search grabs instead of the real
+    section. The actual section header is typically the *last* occurrence of
+    that heading in the document, so start matches are scanned newest-first
+    and the first one followed by a substantial amount of text is used.
+    """
     resp = requests.get(source_url, headers=_HEADERS, timeout=30)
     resp.raise_for_status()
     text = BeautifulSoup(resp.content, "html.parser").get_text(separator="\n")
@@ -66,12 +77,22 @@ def fetch_filing_sections(source_url: str) -> dict[str, str]:
 
     sections: dict[str, str] = {}
     for label, (start_pat, end_pat) in _SECTION_PATTERNS.items():
-        start_match = re.search(start_pat, text, re.IGNORECASE)
-        if not start_match:
+        start_matches = list(re.finditer(start_pat, text, re.IGNORECASE))
+        if not start_matches:
             continue
-        end_match = re.search(end_pat, text[start_match.end():], re.IGNORECASE)
-        end_idx = (
-            start_match.end() + end_match.start() if end_match else start_match.end() + 20_000
-        )
-        sections[label] = text[start_match.start():end_idx].strip()
+
+        chosen = None
+        for m in reversed(start_matches):
+            end_match = re.search(end_pat, text[m.end():], re.IGNORECASE)
+            end_idx = m.end() + end_match.start() if end_match else m.end() + _MAX_SECTION_CHARS
+            candidate = text[m.start():end_idx].strip()
+            if len(candidate) >= _MIN_SECTION_CHARS:
+                chosen = candidate
+                break
+
+        if chosen is None:
+            m = start_matches[-1]
+            chosen = text[m.start():m.end() + _MAX_SECTION_CHARS].strip()
+
+        sections[label] = chosen
     return sections

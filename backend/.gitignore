@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+app/memory/advisor_store.json
+.pytest_cache/
+.env
