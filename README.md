@@ -14,10 +14,13 @@ Built as a 2-hour prototype. Scope is deliberately narrow — see "Known limitat
   guardrails, memory, and eval harness. The only component that talks to Anthropic, Pinecone, and
   LangSmith.
 
-Graph: a **supervisor** agent routes each advisor question to a **market data agent** (mocked
-quotes) and/or a **filings RAG agent** (Pinecone retrieval + summarization), which converge on a
-**compliance agent** that runs guardrail checks and pauses for human (advisor) approval before any
-filing summary is treated as final.
+Graph: every request first passes an **input guardrail** node (`app/graph/guardrails.py`) that
+blocks off-topic requests, prompt-injection attempts, and insider-trading solicitations — a regex
+fast-path for the obvious cases, an LLM classifier for everything subtler — before any agent or
+tool runs. Requests that pass go to a **supervisor** agent, which routes to a **market data agent**
+(mocked quotes) and/or a **filings RAG agent** (Pinecone retrieval + summarization); both converge
+on a **compliance agent** that checks the drafted output for recommendation language and pauses for
+human (advisor) approval before any filing summary is treated as final.
 
 Full design rationale is in the original plan discussion; the short version: mocked quotes and
 pre-seeded filings keep the demo from depending on flaky external APIs, and Pinecone's integrated
@@ -55,7 +58,8 @@ cd backend && source .venv/bin/activate
 python -m app.eval.run_eval
 ```
 
-Runs the 5-case dataset against the compiled graph and reports scores in the LangSmith project
+Runs the 8-case dataset (5 research queries + 3 guardrail-trigger cases: off-topic, prompt
+injection, insider trading) against the compiled graph and reports scores in the LangSmith project
 dashboard (`LANGSMITH_PROJECT` in `.env`).
 
 ## Known limitations (explicit MVP cuts)

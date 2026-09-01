@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,3 +24,11 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# pydantic-settings parses .env into `settings` but never touches os.environ.
+# The langsmith/langchain SDKs read tracing config directly from os.environ,
+# so it has to be propagated explicitly or tracing silently never activates.
+if settings.langsmith_api_key:
+    os.environ.setdefault("LANGSMITH_API_KEY", settings.langsmith_api_key)
+    os.environ.setdefault("LANGSMITH_TRACING", "true" if settings.langsmith_tracing else "false")
+    os.environ.setdefault("LANGSMITH_PROJECT", settings.langsmith_project)
