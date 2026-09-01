@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+sse-starlette
+pydantic
+pydantic-settings
+langgraph
+langchain-core
+langchain-anthropic
+anthropic
+pinecone
+langsmith
+python-dotenv
+requests
+beautifulsoup4
