@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     langsmith_api_key: str = ""
     langsmith_tracing: bool = False
     langsmith_project: str = "advisor-stock-copilot"
+    langsmith_endpoint: str = ""
 
     frontend_origin: str = "http://localhost:3000"
 
@@ -32,3 +33,5 @@ if settings.langsmith_api_key:
     os.environ.setdefault("LANGSMITH_API_KEY", settings.langsmith_api_key)
     os.environ.setdefault("LANGSMITH_TRACING", "true" if settings.langsmith_tracing else "false")
     os.environ.setdefault("LANGSMITH_PROJECT", settings.langsmith_project)
+    if settings.langsmith_endpoint:
+        os.environ.setdefault("LANGSMITH_ENDPOINT", settings.langsmith_endpoint)
