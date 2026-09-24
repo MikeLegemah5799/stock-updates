@@ -1,131 +1,85 @@
 @import "tailwindcss";
 
-/* next-themes toggles a `.dark` class on <html>; tell Tailwind v4's dark:
-   variant to key off that class instead of prefers-color-scheme. */
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
-  --background: #ffffff;
-  --surface: #f8fafc;
-  --surface-hover: #f1f5f9;
-  --surface-inset: #f8fafc;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --foreground: #0f172a;
-  --muted-foreground: #64748b;
+  --bg: #2d2a2e;
+  --bg-deep: #221f22;
+  --bg-card: #3a3640;
+  --bg-surface: #332f34;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-md: rgba(255, 255, 255, 0.13);
 
-  --brand: #1e40af;
-  --brand-hover: #1d4ed8;
-  --brand-bg: #eff6ff;
+  /* Monokai Pro Vibrant */
+  --yellow: #ffd866;
+  --pink: #ff6188;
+  --cyan: #78dce8;
+  --orange: #fc9867;
+  --green: #a9dc76;
+  --purple: #ab9df2;
 
-  --success: #15803d;
-  --success-bg: #f0fdf4;
-  --success-border: #bbf7d0;
-
-  --warning: #b45309;
-  --warning-bg: #fffbeb;
-  --warning-border: #fde68a;
-
-  --danger: #b91c1c;
-  --danger-bg: #fef2f2;
-  --danger-border: #fecaca;
-
-  --edited: #6d28d9;
-  --edited-bg: #f5f3ff;
-  --edited-border: #ddd6fe;
-
-  --shadow-color: 220 40% 20%;
-}
-
-.dark {
-  --background: #090d16;
-  --surface: #10182a;
-  --surface-hover: #16213a;
-  --surface-inset: #0c1220;
-  --border: #202b42;
-  --border-strong: #2c3a56;
-  --foreground: #e6eaf2;
-  --muted-foreground: #8993a8;
-
-  --brand: #4c8dff;
-  --brand-hover: #6fa3ff;
-  --brand-bg: #12213f;
-
-  --success: #34d399;
-  --success-bg: #082b1d;
-  --success-border: #145c3f;
-
-  --warning: #f5b042;
-  --warning-bg: #2e2008;
-  --warning-border: #6b4a12;
-
-  --danger: #f87171;
-  --danger-bg: #2c0f0f;
-  --danger-border: #6b1f1f;
-
-  --edited: #b39bff;
-  --edited-bg: #1c1533;
-  --edited-border: #3f2f6e;
-
-  --shadow-color: 220 60% 3%;
+  --text: #fcfcfa;
+  --soft: #c1b8c8;
+  --muted: #78dce8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-hover: var(--surface-hover);
-  --color-surface-inset: var(--surface-inset);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-foreground: var(--foreground);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-card: var(--bg-card);
+  --color-surface: var(--bg-surface);
+  --color-line: var(--border);
+  --color-line-md: var(--border-md);
+  --color-yellow: var(--yellow);
+  --color-pink: var(--pink);
+  --color-cyan: var(--cyan);
+  --color-orange: var(--orange);
+  --color-green: var(--green);
+  --color-purple: var(--purple);
+  --color-text: var(--text);
+  --color-soft: var(--soft);
+  --color-muted: var(--muted);
 
-  --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-brand-bg: var(--brand-bg);
-
-  --color-success: var(--success);
-  --color-success-bg: var(--success-bg);
-  --color-success-border: var(--success-border);
-
-  --color-warning: var(--warning);
-  --color-warning-bg: var(--warning-bg);
-  --color-warning-border: var(--warning-border);
-
-  --color-danger: var(--danger);
-  --color-danger-bg: var(--danger-bg);
-  --color-danger-border: var(--danger-border);
-
-  --color-edited: var(--edited);
-  --color-edited-bg: var(--edited-bg);
-  --color-edited-border: var(--edited-border);
-
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-serif: var(--font-raleway), sans-serif;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 * {
   border-color: var(--border);
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-feature-settings: "cv11", "ss01";
+  background-color: var(--bg);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  color: var(--text);
+  font-family: var(--font-sans);
 }
 
 ::selection {
-  background: var(--brand);
-  color: white;
+  background: var(--yellow);
+  color: var(--bg-deep);
 }
 
 @keyframes agent-pulse-ring {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 45%, transparent); }
-  100% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--brand) 0%, transparent); }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cyan) 45%, transparent); }
+  100% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--cyan) 0%, transparent); }
 }
 
 .animate-agent-pulse {
   animation: agent-pulse-ring 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: card-in 0.22s ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -136,11 +90,8 @@ body {
   }
 }
 
-@keyframes card-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-in {
-  animation: card-in 0.22s ease-out;
+/* thin dark scrollbars inside the app window */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-md) transparent;
 }

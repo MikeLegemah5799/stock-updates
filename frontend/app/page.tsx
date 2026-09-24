@@ -1,13 +1,12 @@
 "use client";
 
-import { LineChart, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ChatThread, type Turn } from "@/components/chat-thread";
 import { CopilotInput } from "@/components/copilot-input";
 import { QuoteCard } from "@/components/quote-card";
 import { FilingSummaryCard } from "@/components/filing-summary-card";
-import { ApprovalsQueue } from "@/components/approvals-queue";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { SignOffBar } from "@/components/approvals-queue";
+import { Logo } from "@/components/logo";
 import {
   streamQuery,
   approve,
@@ -41,7 +40,7 @@ export default function Home() {
   useEffect(() => {
     getWatchlist(ADVISOR_ID)
       .then((p) => setWatchlist(p.watchlist))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   function patchTurn(id: string, patch: Partial<Turn>) {
@@ -125,56 +124,61 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-brand text-white">
-            <LineChart className="h-4 w-4" strokeWidth={2.25} />
-          </div>
-          <div className="leading-tight">
-            <p className="text-sm font-semibold text-foreground">Advisor Stock Copilot</p>
-            <p className="text-[10.5px] text-muted-foreground">Research briefing tool</p>
-          </div>
-        </div>
+    <div className="mx-auto flex min-h-screen max-w-[1500px] flex-col gap-10 px-6 py-8 lg:h-screen lg:flex-row lg:items-center lg:gap-14 lg:px-[5vw] lg:py-0">
 
-        <div className="flex items-center gap-3">
-          {watchlist.length > 0 && (
-            <div className="hidden items-center gap-1.5 sm:flex">
-              <Star className="h-3.5 w-3.5 text-warning" strokeWidth={2} fill="currentColor" />
-              {watchlist.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-md border border-border bg-surface-inset px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
-                >
-                  {t}
-                </span>
-              ))}
+      <div className="flex min-h-[640px] flex-1 flex-col overflow-hidden rounded-[28px] border border-line-md bg-bg shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] lg:h-[82vh] lg:max-h-[860px] lg:min-h-0">
+        <header className="flex shrink-0 items-center justify-between border-b border-line px-6 py-4">
+          <div className="flex items-center gap-3.5">
+            <Logo size="sm" />
+            <div className="leading-tight">
+              <p className="font-serif text-[17px] font-semibold tracking-tight">Advisor Stock Copilot</p>
+              <p className="font-mono text-xs text-cyan">Research briefing tool</p>
             </div>
-          )}
-          <ThemeToggle />
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-inset text-[11px] font-semibold text-foreground">
-            DA
           </div>
-        </div>
-      </header>
-
-      <main className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[360px_1fr]">
-        <section className="flex min-h-0 flex-col border-b border-border lg:border-b-0 lg:border-r">
-          <ChatThread turns={turns} />
-          <CopilotInput onSubmit={handleAsk} loading={loading} />
-        </section>
-
-        <section className="flex min-h-0 flex-col gap-3 overflow-y-auto p-4">
-          {interrupt && <ApprovalsQueue interrupt={interrupt} onDecision={handleDecision} />}
-          {quote && <QuoteCard quote={quote} />}
-          {filingSummary && <FilingSummaryCard summary={filingSummary} />}
-          {!quote && !filingSummary && !interrupt && (
-            <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-              Workspace is empty — ask Copilot a question to get started.
+          <div className="flex items-center gap-3">
+            {watchlist.length > 0 && (
+              <div className="hidden items-center gap-1.5 sm:flex" aria-label="Watchlist">
+                {watchlist.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md border border-line-md px-1.5 py-0.5 font-mono text-[11px] text-soft"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-purple text-sm font-semibold text-bg-deep">
+              DA
             </div>
-          )}
-        </section>
-      </main>
+          </div>
+        </header>
+
+        <main className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(280px,34%)_1fr]">
+          <section className="flex min-h-[320px] flex-col border-b border-line bg-bg lg:min-h-0 lg:border-b-0 lg:border-r">
+            <ChatThread turns={turns} />
+            <CopilotInput onSubmit={handleAsk} loading={loading} showExamples={turns.length === 0} />
+          </section>
+
+          <section className="scroll-thin flex min-h-0 flex-col gap-4 overflow-y-auto bg-bg p-6">
+            {quote && <QuoteCard quote={quote} />}
+            {filingSummary && <FilingSummaryCard summary={filingSummary} />}
+            {filingSummary && (
+              <SignOffBar
+                key={filingSummary.generated_at}
+                status={filingSummary.approval_status}
+                interrupt={interrupt}
+                onDecision={handleDecision}
+              />
+            )}
+            {!quote && !filingSummary && (
+              <div className="flex flex-1 items-center justify-center text-center text-sm text-soft">
+                Workspace is empty — ask Copilot a question to get started.
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
     </div>
   );
 }

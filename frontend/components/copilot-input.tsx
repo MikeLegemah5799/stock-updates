@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 const EXAMPLES = [
@@ -12,9 +12,11 @@ const EXAMPLES = [
 export function CopilotInput({
   onSubmit,
   loading,
+  showExamples,
 }: {
   onSubmit: (message: string) => void;
   loading: boolean;
+  showExamples: boolean;
 }) {
   const [message, setMessage] = useState("");
 
@@ -25,61 +27,55 @@ export function CopilotInput({
   }
 
   return (
-    <div className="flex flex-col gap-2 border-t border-border bg-surface p-3">
+    <div className="flex flex-col gap-3 p-5">
+      {showExamples && (
+        <div className="flex flex-wrap gap-2">
+          {EXAMPLES.map((example) => (
+            <button
+              key={example}
+              type="button"
+              disabled={loading}
+              onClick={() => onSubmit(example)}
+              className="rounded-full border border-line-md px-3 py-1 text-xs text-soft transition-colors hover:border-yellow/50 hover:text-text disabled:pointer-events-none disabled:opacity-50"
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div
         className={[
-          "flex items-end gap-2 rounded-lg border bg-background p-2 transition-colors",
-          loading ? "border-brand/40" : "border-border focus-within:border-brand/50",
+          "flex items-center gap-2 rounded-2xl border bg-bg-deep py-2 pl-[18px] pr-2 transition-colors",
+          loading ? "border-cyan/40" : "border-line-md focus-within:border-yellow/60",
         ].join(" ")}
       >
-        <Sparkles
-          className={[
-            "mb-2 h-4 w-4 shrink-0 transition-colors",
-            loading ? "text-brand animate-pulse" : "text-muted-foreground",
-          ].join(" ")}
-          strokeWidth={1.75}
-        />
-        <textarea
+        <input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter") {
               e.preventDefault();
               submit();
             }
           }}
-          placeholder="Ask about a ticker's price or SEC filings…"
-          rows={1}
+          placeholder="Ask Copilot…"
           disabled={loading}
-          className="max-h-28 flex-1 resize-none bg-transparent py-1 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
+          className="min-w-0 flex-1 bg-transparent py-2 text-[15px] text-text placeholder:text-soft focus:outline-none disabled:opacity-60"
         />
         <button
           type="button"
           onClick={submit}
           disabled={loading || !message.trim()}
           aria-label="Send"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted-foreground"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-yellow text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           {loading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.25} />
+            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} />
           ) : (
-            <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
+            <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
           )}
         </button>
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        {EXAMPLES.map((example) => (
-          <button
-            key={example}
-            type="button"
-            disabled={loading}
-            onClick={() => onSubmit(example)}
-            className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
-          >
-            {example}
-          </button>
-        ))}
       </div>
     </div>
   );

@@ -62,13 +62,10 @@ export function AgentStatusStepper({
           <span
             key={node}
             className={[
-              "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors",
-              state === "done" &&
-                "border-success-border bg-success-bg text-success",
-              state === "active" &&
-                "border-brand/30 bg-brand-bg text-brand animate-agent-pulse",
-              state === "pending" &&
-                "border-border bg-surface-inset text-muted-foreground",
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] transition-colors",
+              state === "done" && "border-green/40 bg-green/10 text-green",
+              state === "active" && "border-cyan/40 bg-cyan/10 text-cyan animate-agent-pulse",
+              state === "pending" && "border-line-md text-soft",
             ]
               .filter(Boolean)
               .join(" ")}
